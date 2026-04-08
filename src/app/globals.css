@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #080b10;
+	--foreground: #f3f5f7;
+	--card: #0f141b;
+	--card-soft: #131a23;
+	--muted: #98a1ad;
+	--line: #232c38;
+	--accent: #69a7ff;
+	--accent-strong: #8ab9ff;
+	--danger: #ff6d6d;
+	--success: #3ecf8e;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-soft: var(--card-soft);
+	--color-muted: var(--muted);
+	--color-line: var(--line);
+	--color-accent: var(--accent);
+	--color-accent-strong: var(--accent-strong);
+	--color-danger: var(--danger);
+	--color-success: var(--success);
+	--font-sans: var(--font-body);
+	--font-title: var(--font-title);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+	min-height: 100vh;
+	color: var(--foreground);
+	font-family: var(--font-body), sans-serif;
+	background:
+		radial-gradient(
+			circle at 12% -10%,
+			rgb(105 167 255 / 16%),
+			transparent 36%
+		),
+		radial-gradient(
+			circle at 85% 0%,
+			rgb(142 185 255 / 10%),
+			transparent 32%
+		),
+		linear-gradient(180deg, #090d13 0%, #070a0e 100%);
+}
+
+.panel {
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: linear-gradient(
+		180deg,
+		rgb(18 24 33 / 90%),
+		rgb(11 15 21 / 92%)
+	);
+	box-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 3%),
+		0 16px 30px rgb(0 0 0 / 28%);
+}
+
+.ticker {
+	font-family: var(--font-title), sans-serif;
+	letter-spacing: 0.02em;
+}
+
+.danger-glow {
+	text-shadow: none;
 }
