@@ -27,15 +27,29 @@ async function fetchExchange(): Promise<ExchangeResponse> {
 }
 
 export function MeltdownCalculator() {
-	const [assetsKrw, setAssetsKrw] = useState(100_000_000);
+	const [assetsKrwInput, setAssetsKrwInput] = useState("100,000,000");
+
 	const { data } = useQuery({
 		queryKey: ["usd-krw"],
 		queryFn: fetchExchange,
 		refetchInterval: 15_000,
 	});
 
+	const assetsKrw = parseKrwAmount(assetsKrwInput);
+	const assetsKrwLabel = formatKrwAmount(assetsKrw);
+
 	const stats = useMemo(() => {
 		const currentRate = data?.usdKrw ?? 1400;
+		if (assetsKrw <= 0) {
+			return {
+				currentRate,
+				usdAtBase: 0,
+				usdNow: 0,
+				usdLoss: 0,
+				purchasingPowerLeft: 0,
+			};
+		}
+
 		const usdAtBase = assetsKrw / BASE_RATE;
 		const usdNow = assetsKrw / currentRate;
 		const usdLoss = usdAtBase - usdNow;
@@ -68,20 +82,24 @@ export function MeltdownCalculator() {
 					</label>
 					<Input
 						id="assets-input"
-						type="number"
-						min={0}
-						step={100000}
-						value={assetsKrw}
+						type="text"
+						inputMode="numeric"
+						pattern="[0-9,]*"
+						value={assetsKrwInput}
 						onChange={(e) =>
-							setAssetsKrw(Number(e.target.value || 0))
+							setAssetsKrwInput(formatKrwInput(e.target.value))
 						}
 					/>
+					<p className="text-sm font-medium text-accent-strong">
+						현재 입력: {assetsKrwLabel}
+					</p>
 					<p className="text-xs text-muted">
 						비교 기준 환율: 1 USD ={" "}
 						{BASE_RATE.toLocaleString("ko-KR")}원
 					</p>
 				</div>
 
+				{/* StatBox 부분은 동일하게 유지 */}
 				<div className="space-y-3 rounded-xl border border-line bg-card/55 p-4">
 					<p className="ticker text-sm text-muted">
 						VALUE IMPACT REPORT
@@ -105,7 +123,6 @@ export function MeltdownCalculator() {
 							danger
 						/>
 					</div>
-
 					<div className="mt-2 rounded-lg border border-line bg-card-soft/55 p-3 text-sm">
 						구매력 보존율:
 						<span className="ml-2 text-lg font-bold text-accent-strong">
@@ -118,12 +135,8 @@ export function MeltdownCalculator() {
 	);
 }
 
-type StatBoxProps = {
-	label: string;
-	value: string;
-	danger?: boolean;
-};
-
+// StatBox 및 유틸 함수들은 하단에 위치
+type StatBoxProps = { label: string; value: string; danger?: boolean };
 function StatBox({ label, value, danger }: StatBoxProps) {
 	return (
 		<div className="rounded-lg border border-line bg-card-soft/45 p-3">
@@ -135,4 +148,29 @@ function StatBox({ label, value, danger }: StatBoxProps) {
 			</div>
 		</div>
 	);
+}
+
+function parseKrwAmount(value: string) {
+	const normalized = value.replace(/[^0-9]/g, "");
+	return normalized ? Number(normalized) : 0;
+}
+
+function formatKrwInput(value: string) {
+	const normalized = value.replace(/[^0-9]/g, "");
+	if (!normalized) return "";
+	return Number(normalized).toLocaleString("ko-KR");
+}
+
+function formatKrwAmount(value: number) {
+	if (!Number.isFinite(value) || value <= 0) return "0원";
+	const eok = Math.floor(value / 100_000_000);
+	const afterEok = value % 100_000_000;
+	const man = Math.floor(afterEok / 10_000);
+	const won = afterEok % 10_000;
+	const parts: string[] = [];
+	if (eok > 0) parts.push(`${eok.toLocaleString("ko-KR")}억`);
+	if (man > 0) parts.push(`${man.toLocaleString("ko-KR")}만`);
+	if (won > 0 || parts.length === 0)
+		parts.push(`${won.toLocaleString("ko-KR")}원`);
+	return parts.join(" ");
 }

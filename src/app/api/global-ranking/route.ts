@@ -240,9 +240,11 @@ async function fetchCurrencyUnits() {
 			>();
 		}
 
-		const countries = (await response.json()) as RestCountry[] | {
-			errors?: unknown;
-		};
+		const countries = (await response.json()) as
+			| RestCountry[]
+			| {
+					errors?: unknown;
+			  };
 		if (!Array.isArray(countries)) {
 			return new Map<
 				string,
@@ -267,7 +269,10 @@ async function fetchCurrencyUnits() {
 			}
 
 			const info = item.currencies[firstCurrencyCode];
-			const unitName = toKoreanCurrencyUnit(firstCurrencyCode, info?.name);
+			const unitName = toKoreanCurrencyUnit(
+				firstCurrencyCode,
+				info?.name,
+			);
 			map.set(countryCode, {
 				currencyCode: firstCurrencyCode,
 				currencyUnit: unitName,
