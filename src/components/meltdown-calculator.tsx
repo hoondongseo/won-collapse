@@ -16,7 +16,7 @@ type ExchangeResponse = {
 	usdKrw: number;
 };
 
-const BASE_RATE = 1180;
+const BASE_RATE = 1360;
 
 async function fetchExchange(): Promise<ExchangeResponse> {
 	const response = await fetch("/api/exchange", { cache: "no-store" });
