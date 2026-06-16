@@ -68,9 +68,7 @@ export function MeltdownCalculator() {
 		<Card>
 			<CardHeader>
 				<CardDescription>내 자산 계산기</CardDescription>
-				<CardTitle className="text-2xl">
-					환율 변화에 따른 자산 체감 변화
-				</CardTitle>
+				<CardTitle className="text-2xl">1년 전과 비교해보면?</CardTitle>
 			</CardHeader>
 			<CardContent className="grid gap-4 lg:grid-cols-2">
 				<div className="space-y-3 rounded-xl border border-line bg-card-soft/50 p-4">
