@@ -225,46 +225,62 @@ function toKoreanCurrencyUnit(code: string, englishName?: string) {
 }
 
 async function fetchCurrencyUnits() {
-	const response = await fetch(
-		"https://restcountries.com/v3.1/all?fields=cca2,currencies",
-		{
-			next: { revalidate: DAILY_SECONDS },
-		},
-	);
+	try {
+		const response = await fetch(
+			"https://restcountries.com/v3.1/all?fields=cca2,currencies",
+			{
+				next: { revalidate: DAILY_SECONDS },
+			},
+		);
 
-	if (!response.ok) {
+		if (!response.ok) {
+			return new Map<
+				string,
+				{ currencyCode: string; currencyUnit: string }
+			>();
+		}
+
+		const countries = (await response.json()) as RestCountry[] | {
+			errors?: unknown;
+		};
+		if (!Array.isArray(countries)) {
+			return new Map<
+				string,
+				{ currencyCode: string; currencyUnit: string }
+			>();
+		}
+
+		const map = new Map<
+			string,
+			{ currencyCode: string; currencyUnit: string }
+		>();
+
+		for (const item of countries) {
+			const countryCode = item.cca2;
+			if (!countryCode || !item.currencies) {
+				continue;
+			}
+
+			const firstCurrencyCode = Object.keys(item.currencies)[0];
+			if (!firstCurrencyCode) {
+				continue;
+			}
+
+			const info = item.currencies[firstCurrencyCode];
+			const unitName = toKoreanCurrencyUnit(firstCurrencyCode, info?.name);
+			map.set(countryCode, {
+				currencyCode: firstCurrencyCode,
+				currencyUnit: unitName,
+			});
+		}
+
+		return map;
+	} catch {
 		return new Map<
 			string,
 			{ currencyCode: string; currencyUnit: string }
 		>();
 	}
-
-	const countries = (await response.json()) as RestCountry[];
-	const map = new Map<
-		string,
-		{ currencyCode: string; currencyUnit: string }
-	>();
-
-	for (const item of countries) {
-		const countryCode = item.cca2;
-		if (!countryCode || !item.currencies) {
-			continue;
-		}
-
-		const firstCurrencyCode = Object.keys(item.currencies)[0];
-		if (!firstCurrencyCode) {
-			continue;
-		}
-
-		const info = item.currencies[firstCurrencyCode];
-		const unitName = toKoreanCurrencyUnit(firstCurrencyCode, info?.name);
-		map.set(countryCode, {
-			currencyCode: firstCurrencyCode,
-			currencyUnit: unitName,
-		});
-	}
-
-	return map;
 }
 
 function parseBisEerXml(xml: string) {

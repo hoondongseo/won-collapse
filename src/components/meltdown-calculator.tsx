@@ -53,7 +53,7 @@ export function MeltdownCalculator() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardDescription>풍자 계산기</CardDescription>
+				<CardDescription>내 자산 계산기</CardDescription>
 				<CardTitle className="text-2xl">
 					환율 변화에 따른 자산 체감 변화
 				</CardTitle>
